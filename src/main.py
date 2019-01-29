@@ -1,10 +1,9 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 from __future__ import print_function
 import argparse
 import json
 import os.path
-import pathlib2 as pathlib
 import os
 import subprocess
 import re
@@ -95,18 +94,8 @@ for i in range(0,len(colours)):
     clrhexlist.append(colours[i]["hex"])
 
 
-class HomeAutomationHub():
-
-    def __init__(self):
-        if configuration['MQTT']['MQTT_Control']=='Enabled':
-            self.t1 = Thread(target=self.mqtt_start)
-            self.t1.start()
-        if configuration['ADAFRUIT_IO']['ADAFRUIT_IO_CONTROL']=='Enabled':
-            self.t2 = Thread(target=self.adafruit_mqtt_start)
-            self.t2.start()
-
     #Function to get HEX and RGB values for requested colour
-    def getcolours(self,command):
+    def getcolours(command):
         usrclridx=idx=command.find(custom_action_keyword['Dict']['To'])
         usrclr=query=command[usrclridx:]
         usrclr=usrclr.replace(custom_action_keyword['Dict']['To'],"",1)
@@ -127,7 +116,7 @@ class HomeAutomationHub():
             print("Sorry unable to find a matching colour")
 
     #Function to convert FBG to XY for Hue Lights
-    def convert_rgb_xy(self,red,green,blue):
+    def convert_rgb_xy(red,green,blue):
         try:
             red = pow((red + 0.055) / (1.0 + 0.055), 2.4) if red > 0.04045 else red / 12.92
             green = pow((green + 0.055) / (1.0 + 0.055), 2.4) if green > 0.04045 else green / 12.92
@@ -142,7 +131,7 @@ class HomeAutomationHub():
             print("No RGB values given")
 
     #ESP6266 Devcies control
-    def ESP(self,command):
+    def ESP(command):
         try:
             for num, name in enumerate(devname):
                 if name.lower() in command:
@@ -158,7 +147,7 @@ class HomeAutomationHub():
             print("Device not online")
 
     #Function to control Sonoff Tasmota Devices
-    def tasmota_control(self,command,devname,devip,devportid):
+    def tasmota_control(command,devname,devip,devportid):
         try:
             if custom_action_keyword['Dict']['On'] in command:
                 rq=requests.head("http://"+devip+"/cm?cmnd=Power"+devportid+"%20on")
@@ -170,7 +159,7 @@ class HomeAutomationHub():
             print("Device not online")
 
     #Function to control DIY HUE
-    def hue_control(self,phrase,lightindex,lightaddress):
+    def hue_control(phrase,lightindex,lightaddress):
         with open('/opt/hue-emulator/config.json', 'r') as config:
              hueconfig = json.load(config)
         currentxval=hueconfig['lights'][lightindex]['state']['xy'][0]
@@ -210,7 +199,7 @@ class HomeAutomationHub():
                 print("Device not online")
 
    #Function to control Domoticz Devices
-    def domoticz_control(self,query,index,devicename):
+    def domoticz_control(query,index,devicename):
         global hexcolour,bright,devorder
         try:
             for j in range(0,len(domoticz_devices['result'])):
@@ -258,49 +247,49 @@ class HomeAutomationHub():
             else:
                 print("Device or Domoticz server is not online")
 
-    def on_connect(self, client, userdata, flags, rc):
+    def on_connect( client, userdata, flags, rc):
         print("Connected with result code "+str(rc))
         client.subscribe(configuration['MQTT']['TOPIC'])
 
-    def on_message(self, client, userdata, msg):
-        if self.can_start_conversation == True:
+    def on_message( client, userdata, msg):
+        if can_start_conversation == True:
             print("Message from MQTT: "+str(msg.payload.decode('utf-8')))
             mqtt_query=str(msg.payload.decode('utf-8'))
-            self.custom_command(mqtt_query)
+            custom_command(mqtt_query)
 
-    def mqtt_start(self):
+    def mqtt_start():
         client = mqtt.Client()
-        client.on_connect = self.on_connect
-        client.on_message = self.on_message
+        client.on_connect = on_connect
+        client.on_message = on_message
         client.username_pw_set(configuration['MQTT']['UNAME'], configuration['MQTT']['PSWRD'])
         client.connect(configuration['MQTT']['IP'], 1883, 60)
         client.loop_forever()
 
-    def adafruit_connected(self,client):
+    def adafruit_connected(client):
         print('Connected to Adafruit IO!  Listening for DemoFeed changes...')
         client.subscribe(configuration['ADAFRUIT_IO']['FEEDNAME'])
 
-    def adafruit_disconnected(self,client):
+    def adafruit_disconnected(client):
         print('Disconnected from Adafruit IO!')
 
-    def adafruit_message(self,client, feed_id, payload):
-        if self.can_start_conversation == True:
+    def adafruit_message(client, feed_id, payload):
+        if can_start_conversation == True:
             print("Message from ADAFRUIT MQTT: "+str(payload.decode('utf-8')))
             adafruit_mqtt_query=str(payload.decode('utf-8'))
-            self.custom_command(adafruit_mqtt_query)
+            custom_command(adafruit_mqtt_query)
 
-    def adafruit_mqtt_start(self):
+    def adafruit_mqtt_start():
         if configuration['ADAFRUIT_IO']['ADAFRUIT_IO_CONTROL']=='Enabled':
             client = MQTTClient(configuration['ADAFRUIT_IO']['ADAFRUIT_IO_USERNAME'], configuration['ADAFRUIT_IO']['ADAFRUIT_IO_KEY'])
-            client.on_connect    = self.adafruit_connected
-            client.on_disconnect = self.adafruit_disconnected
-            client.on_message    = self.adafruit_message
+            client.on_connect    = adafruit_connected
+            client.on_disconnect = adafruit_disconnected
+            client.on_message    = adafruit_message
             client.connect()
-            client.loop_background()
+            client.loop_blocking()
         else:
             print("Adafruit_io MQTT client not enabled")
 
-    def custom_command(self,command):
+    def custom_command(command):
         if configuration['DIYHUE']['DIYHUE_Control']=='Enabled':
             if os.path.isfile('/opt/hue-emulator/config.json'):
                 with open('/opt/hue-emulator/config.json', 'r') as config:
@@ -308,7 +297,7 @@ class HomeAutomationHub():
                 for i in range(1,len(hueconfig['lights'])+1):
                     try:
                         if str(hueconfig['lights'][str(i)]['name']).lower() in str(command).lower():
-                            self.hue_control(str(command).lower(),str(i),str(hueconfig['lights_address'][str(i)]['ip']))
+                            hue_control(str(command).lower(),str(i),str(hueconfig['lights_address'][str(i)]['ip']))
                             break
                     except Keyerror:
                         print('Unable to help, please check your config file')
@@ -329,9 +318,10 @@ class HomeAutomationHub():
             else:
                 print("Number of devices and the number of ids given in config file do not match")
 
-         if configuration['ESP']['ESP_Control']=='Enabled':
+        if configuration['ESP']['ESP_Control']=='Enabled':
             if (custom_action_keyword['Keywords']['ESP_control'][0]).lower() in str(command).lower():
                 ESP(str(command).lower())
 
 if __name__ == '__main__':
-    print("Running the HUB......")
+    adafruit_mqtt_start()
+    mqtt_start()
