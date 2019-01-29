@@ -15,6 +15,7 @@ import signal
 import requests
 import io
 import yaml
+from threading import Thread
 import urllib.request
 import paho.mqtt.client as mqtt
 from pathlib import Path
@@ -94,8 +95,18 @@ for i in range(0,len(colours)):
     clrhexlist.append(colours[i]["hex"])
 
 
+class HomeAutomationHub():
+
+    def __init__(self):
+        if configuration['MQTT']['MQTT_Control']=='Enabled':
+            self.t1 = Thread(target=self.mqtt_start)
+            self.t1.start()
+        if configuration['ADAFRUIT_IO']['ADAFRUIT_IO_CONTROL']=='Enabled':
+            self.t2 = Thread(target=self.adafruit_mqtt_start)
+            self.t2.start()
+
     #Function to get HEX and RGB values for requested colour
-    def getcolours(command):
+    def getcolours(self,command):
         usrclridx=idx=command.find(custom_action_keyword['Dict']['To'])
         usrclr=query=command[usrclridx:]
         usrclr=usrclr.replace(custom_action_keyword['Dict']['To'],"",1)
@@ -116,7 +127,7 @@ for i in range(0,len(colours)):
             print("Sorry unable to find a matching colour")
 
     #Function to convert FBG to XY for Hue Lights
-    def convert_rgb_xy(red,green,blue):
+    def convert_rgb_xy(self,red,green,blue):
         try:
             red = pow((red + 0.055) / (1.0 + 0.055), 2.4) if red > 0.04045 else red / 12.92
             green = pow((green + 0.055) / (1.0 + 0.055), 2.4) if green > 0.04045 else green / 12.92
@@ -131,7 +142,7 @@ for i in range(0,len(colours)):
             print("No RGB values given")
 
     #ESP6266 Devcies control
-    def ESP(command):
+    def ESP(self,command):
         try:
             for num, name in enumerate(devname):
                 if name.lower() in command:
@@ -147,7 +158,7 @@ for i in range(0,len(colours)):
             print("Device not online")
 
     #Function to control Sonoff Tasmota Devices
-    def tasmota_control(command,devname,devip,devportid):
+    def tasmota_control(self,command,devname,devip,devportid):
         try:
             if custom_action_keyword['Dict']['On'] in command:
                 rq=requests.head("http://"+devip+"/cm?cmnd=Power"+devportid+"%20on")
@@ -159,7 +170,7 @@ for i in range(0,len(colours)):
             print("Device not online")
 
     #Function to control DIY HUE
-    def hue_control(phrase,lightindex,lightaddress):
+    def hue_control(self,phrase,lightindex,lightaddress):
         with open('/opt/hue-emulator/config.json', 'r') as config:
              hueconfig = json.load(config)
         currentxval=hueconfig['lights'][lightindex]['state']['xy'][0]
@@ -199,7 +210,7 @@ for i in range(0,len(colours)):
                 print("Device not online")
 
    #Function to control Domoticz Devices
-    def domoticz_control(query,index,devicename):
+    def domoticz_control(self,query,index,devicename):
         global hexcolour,bright,devorder
         try:
             for j in range(0,len(domoticz_devices['result'])):
@@ -247,52 +258,50 @@ for i in range(0,len(colours)):
             else:
                 print("Device or Domoticz server is not online")
 
-    def on_connect( client, userdata, flags, rc):
+    def on_connect(self, client, userdata, flags, rc):
         print("Connected with result code "+str(rc))
         client.subscribe(configuration['MQTT']['TOPIC'])
 
-    def on_message( client, userdata, msg):
-        if can_start_conversation == True:
-            print("Message from MQTT: "+str(msg.payload.decode('utf-8')))
-            mqtt_query=str(msg.payload.decode('utf-8'))
-            custom_command(mqtt_query)
+    def on_message(self, client, userdata, msg):
+        print("Message from MQTT: "+str(msg.payload.decode('utf-8')))
+        mqtt_query=str(msg.payload.decode('utf-8'))
+        self.custom_command(mqtt_query)
 
-    def mqtt_start():
+    def mqtt_start(self):
         if configuration['MQTT']['MQTT_Control']=='Enabled':
             client = mqtt.Client()
-            client.on_connect = on_connect
-            client.on_message = on_message
+            client.on_connect = self.on_connect
+            client.on_message = self.on_message
             client.username_pw_set(configuration['MQTT']['UNAME'], configuration['MQTT']['PSWRD'])
             client.connect(configuration['MQTT']['IP'], 1883, 60)
             client.loop_forever()
         else:
-            print("MQTT Client not enabled........")
+            print('MQTT not enabled......')
 
-
-    def adafruit_connected(client):
+    def adafruit_connected(self,client):
         print('Connected to Adafruit IO!  Listening for DemoFeed changes...')
         client.subscribe(configuration['ADAFRUIT_IO']['FEEDNAME'])
 
-    def adafruit_disconnected(client):
+    def adafruit_disconnected(self,client):
         print('Disconnected from Adafruit IO!')
 
-    def adafruit_message(client, feed_id, payload):
-        print("Message from ADAFRUIT MQTT: "+str(payload.decode('utf-8')))
-        adafruit_mqtt_query=str(payload.decode('utf-8'))
-        custom_command(adafruit_mqtt_query)
+    def adafruit_message(self,client, feed_id, payload):
+        print("Message from ADAFRUIT MQTT: "+str(payload))        
+        adafruit_mqtt_query=str(payload)
+        self.custom_command(adafruit_mqtt_query)
 
-    def adafruit_mqtt_start():
+    def adafruit_mqtt_start(self):
         if configuration['ADAFRUIT_IO']['ADAFRUIT_IO_CONTROL']=='Enabled':
             client = MQTTClient(configuration['ADAFRUIT_IO']['ADAFRUIT_IO_USERNAME'], configuration['ADAFRUIT_IO']['ADAFRUIT_IO_KEY'])
-            client.on_connect    = adafruit_connected
-            client.on_disconnect = adafruit_disconnected
-            client.on_message    = adafruit_message
+            client.on_connect    = self.adafruit_connected
+            client.on_disconnect = self.adafruit_disconnected
+            client.on_message    = self.adafruit_message
             client.connect()
             client.loop_blocking()
         else:
             print("Adafruit_io MQTT client not enabled")
 
-    def custom_command(command):
+    def custom_command(self,command):
         if configuration['DIYHUE']['DIYHUE_Control']=='Enabled':
             if os.path.isfile('/opt/hue-emulator/config.json'):
                 with open('/opt/hue-emulator/config.json', 'r') as config:
@@ -300,7 +309,7 @@ for i in range(0,len(colours)):
                 for i in range(1,len(hueconfig['lights'])+1):
                     try:
                         if str(hueconfig['lights'][str(i)]['name']).lower() in str(command).lower():
-                            hue_control(str(command).lower(),str(i),str(hueconfig['lights_address'][str(i)]['ip']))
+                            self.hue_control(str(command).lower(),str(i),str(hueconfig['lights_address'][str(i)]['ip']))
                             break
                     except Keyerror:
                         print('Unable to help, please check your config file')
@@ -308,7 +317,6 @@ for i in range(0,len(colours)):
         if configuration['Tasmota_devicelist']['Tasmota_Control']=='Enabled':
             for num, name in enumerate(tasmota_devicelist):
                 if name.lower() in str(command).lower():
-
                     tasmota_control(str(command).lower(), name.lower(),tasmota_deviceip[num],tasmota_deviceportid[num])
                     break
 
@@ -326,5 +334,5 @@ for i in range(0,len(colours)):
                 ESP(str(command).lower())
 
 if __name__ == '__main__':
-    adafruit_mqtt_start()
-    mqtt_start()
+    print("Running the HUB......")
+    HomeAutomationHub()
