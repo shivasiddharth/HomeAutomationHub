@@ -4,7 +4,6 @@ from __future__ import print_function
 import argparse
 import json
 import os.path
-import pathlib2 as pathlib
 import os
 import subprocess
 import re
@@ -266,7 +265,7 @@ class HomeAutomationHub():
     def on_message(self, client, userdata, msg):
         print("Message from MQTT: "+str(msg.payload.decode('utf-8')))
         mqtt_query=str(msg.payload.decode('utf-8'))
-        self.custom_command(mqtt_query)            
+        self.custom_command(mqtt_query)
 
     def mqtt_start(self):
         client = mqtt.Client()
