@@ -1,6 +1,7 @@
 # HomeAutomationHub
-Using Adafruit IO control devices like Sonoff-Tasmota, Domoticz, etc.
+Using Adafruit IO or Local MQTT control devices like Sonoff-Tasmota, Domoticz, Emulated Wemo etc.     
 
+## Steps to get started:    
 1. Clone the Git    
 
 ```
