@@ -9,7 +9,7 @@ ADAFRUIT_IO:
 
 # DIY-HUE declarations
 DIYHUE:
-  DIYHUE_Control: 'Enabled'
+  DIYHUE_Control: 'Disabled'
 
 # Domoticz declarations
 Domoticz:
