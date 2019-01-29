@@ -1,0 +1,18 @@
+#Do not change the Dict below
+Dict:
+  Brightness: 'helligkeit'
+  By: 'von'
+  Change: 'ändern'
+  Colour: 'farbe'
+  Decrease: 'verringern'
+  Down:  'runter'
+  From: 'von'
+  Increase: 'erhöhen'
+  Maximum: 'maximal'
+  Minimum: 'minimum'
+  'Off': 'aus'
+  'On': 'an'
+  Reduce: 'reduziere'
+  Set: 'einstellen'
+  To: 'zu'
+  Up: 'rauf'

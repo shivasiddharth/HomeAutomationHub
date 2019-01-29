@@ -1,0 +1,81 @@
+#Config file for declaring custom actions'parameters. The parameters have been listed here in alphabetical order (A-Z).
+
+#Adafruit_IO. Sending commands from Genuine Google Home/Assistant Devices to control Domoticz Tasmota etc.
+ADAFRUIT_IO:
+  ADAFRUIT_IO_CONTROL: 'Disabled'
+  ADAFRUIT_IO_USERNAME: 'ENTER YOUR ADAFRUIT_IO USERNAME HERE'
+  ADAFRUIT_IO_KEY: 'ENTER YOUR ADAFRUIT_IO KEY HERE'
+  FEEDNAME: 'ENTER YOUR ADAFRUIT_IO FEEDNAME THAT YOU WANT TO MONITOR HERE'
+
+# DIY-HUE declarations
+DIYHUE:
+  DIYHUE_Control: 'Enabled'
+
+# Domoticz declarations
+Domoticz:
+  # Set this to 'Enabled' to control devices registered to Domoticz server.
+  Domoticz_Control: 'Disabled'
+  Server_IP:
+    # If you are running the server on the Pi itself, then change the ip to 'localhost'
+    - '192.168.0.10'
+  Server_port:
+    - '443'
+  Devices:
+    #The number of names and number of ids should be equal
+    #List the device names that you want to control
+    Name:
+      - 'Lamp1'
+      - 'Lamp2'
+      - 'Lamp3'
+    #Assign the device ids in the same order as the devices listed above
+    Id:
+      - '1'
+      - '2'
+      - '3'
+
+#ESP control declarations. Follow a similar pattern to add your own list.
+ESP:
+  ESP_Control: 'Enabled'
+  IP: 'xxxxxxxxxxxx' #Enter your ESP's IP here.
+  devicename:
+    - 'Device 1'
+    - 'Device 2'
+    - 'Device 3'
+  deviceid:
+    - '/Device1'
+    - '/Device2'
+    - '/Device3'
+
+#Set the language of your command. Default is english
+Language:
+  Choice: 'en-US'
+  Language options:
+     - 'en-US' #'English'US
+     - 'en-GB' #English GB
+     - 'fr-FR' # 'French'
+     - 'de-DE' # 'German'
+     - 'it-IT' # 'Italian'
+     - 'es-ES' # 'Spanish'
+     - 'nl-NL' # 'Dutch'
+     - 'sv-SE' # 'Swedish'
+
+#MQTT credentials
+MQTT:
+  MQTT_Control: 'Disabled'
+  IP: 'Enter your MQTT IP ADDRESS here'
+  UNAME: 'Enter your MQTT USERNAME here'
+  PSWRD: 'Enter your MQTT PASSWORD here'
+  TOPIC: 'ENTER your MQTT TOPIC here'
+
+#Enter your Tasmota Device details below
+Tasmota_devicelist:
+  Tasmota_Control: 'Enabled'
+  friendly-names:
+    - 'Desk Light'
+    - 'Table Light'
+  ipaddresses:
+    - '192.168.1.36'
+    - '192.168.1.35'
+  portID:
+    - '1'
+    - '1'

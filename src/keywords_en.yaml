@@ -1,0 +1,18 @@
+#Do not change the Dict below
+Dict:
+  Brightness: 'brightness'
+  By: 'by'
+  Change: 'change'
+  Colour: 'colour'
+  Decrease: 'decrease'
+  Down:  'down'
+  From: 'from'
+  Increase: 'increase'
+  Maximum: 'maximum'
+  Minimum: 'minimum'
+  'Off': 'off'
+  'On': 'on'
+  Reduce: 'reduce'
+  Set: 'set'
+  To: 'to'
+  Up: 'up'
