@@ -31,3 +31,11 @@ sudo /home/${USER}/HomeAutomationHub/scripts/service-installer.sh
 sudo systemctl enable homeautomationhub.service     
 sudo systemctl start homeautomationhub.service      
 ```       
+
+## Devices that currently work:   
+ - Sonoff-Tasmota   
+ - Domoticz Devices    
+ - Emulated Wemo   
+
+## Devices to be added/fixed:   
+ - diyHue   

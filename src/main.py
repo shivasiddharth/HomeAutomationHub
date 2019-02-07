@@ -28,24 +28,6 @@ USER_PATH = os.path.realpath(os.path.join(__file__, '..', '..','..'))
 with open('{}/src/config.yaml'.format(ROOT_PATH),'r', encoding='utf8') as conf:
     configuration = yaml.load(conf)
 
-if 'en' in configuration['Language']['Choice']:
-    keywordfile= '{}/src/keywords_en.yaml'.format(ROOT_PATH)
-elif 'it' in configuration['Language']['Choice']:
-    keywordfile= '{}/src/keywords_it.yaml'.format(ROOT_PATH)
-elif 'fr' in configuration['Language']['Choice']:
-    keywordfile= '{}/src/keywords_fr.yaml'.format(ROOT_PATH)
-elif 'de' in configuration['Language']['Choice']:
-    keywordfile= '{}/src/keywords_de.yaml'.format(ROOT_PATH)
-elif 'es' in configuration['Language']['Choice']:
-    keywordfile= '{}/src/keywords_es.yaml'.format(ROOT_PATH)
-elif 'nl' in configuration['Language']['Choice']:
-    keywordfile= '{}/src/keywords_nl.yaml'.format(ROOT_PATH)
-elif 'sv' in configuration['Language']['Choice']:
-    keywordfile= '{}/src/keywords_sv.yaml'.format(ROOT_PATH)
-else:
-    keywordfile= '{}/src/keywords_en.yaml'.format(ROOT_PATH)
-with open(keywordfile,'r' , encoding='utf8') as conf:
-    custom_action_keyword = yaml.load(conf)
 
 #Sonoff-Tasmota Declarations
 #Make sure that the device name assigned here does not overlap any of your smart device names in the google home app
@@ -107,9 +89,9 @@ class HomeAutomationHub():
 
     #Function to get HEX and RGB values for requested colour
     def getcolours(self,command):
-        usrclridx=idx=command.find(custom_action_keyword['Dict']['To'])
+        usrclridx=idx=command.find('to')
         usrclr=query=command[usrclridx:]
-        usrclr=usrclr.replace(custom_action_keyword['Dict']['To'],"",1)
+        usrclr=usrclr.replace('to',"",1)
         usrclr=usrclr.strip()
         usrclr=usrclr.lower()
         print(usrclr)
@@ -147,10 +129,10 @@ class HomeAutomationHub():
             for num, name in enumerate(devname):
                 if name.lower() in command:
                     dev=devid[num]
-                    if custom_action_keyword['Dict']['On'] in command:
+                    if 'on' in command:
                         ctrl='=ON'
                         print("Turning On " + name)
-                    elif custom_action_keyword['Dict']['Off'] in command:
+                    elif 'off' in command:
                         ctrl='=OFF'
                         print("Turning Off " + name)
                     rq = requests.head("http://"+ip + dev + ctrl)
@@ -160,10 +142,10 @@ class HomeAutomationHub():
     #Function to control Sonoff Tasmota Devices
     def tasmota_control(self,command,devname,devip,devportid):
         try:
-            if custom_action_keyword['Dict']['On'] in command:
+            if 'on' in command:
                 rq=requests.head("http://"+devip+"/cm?cmnd=Power"+devportid+"%20on")
                 print("Tunring on "+devname)
-            elif custom_action_keyword['Dict']['Off'] in command:
+            elif 'off' in command:
                 rq=requests.head("http://"+devip+"/cm?cmnd=Power"+devportid+"%20off")
                 print("Tunring off "+devname)
         except requests.exceptions.ConnectionError:
@@ -179,10 +161,10 @@ class HomeAutomationHub():
         currentct=hueconfig['lights'][lightindex]['state']['ct']
         huelightname=str(hueconfig['lights'][lightindex]['name'])
         try:
-            if custom_action_keyword['Dict']['On'] in phrase:
+            if 'on' in phrase:
                 huereq=requests.head("http://"+lightaddress+"/set?light="+lightindex+"&on=true")
                 print("Turning on "+huelightname)
-            if custom_action_keyword['Dict']['Off'] in phrase:
+            if 'off' in phrase:
                 huereq=requests.head("http://"+lightaddress+"/set?light="+lightindex+"&on=false")
                 print("Turning off "+huelightname)
             if 'çolor' in phrase:
@@ -193,10 +175,10 @@ class HomeAutomationHub():
                 huereq=requests.head("http://"+lightaddress+"/set?light="+lightindex+"&x="+str(xval)+"&y="+str(yval)+"&on=true")
                 print("http://"+lightaddress+"/set?light="+lightindex+"&x="+str(xval)+"&y="+str(yval)+"&on=true")
                 print("Setting "+huelightname+" to "+colour)
-            if (custom_action_keyword['Dict']['Brightness']).lower() in phrase:
-                if 'hundred'.lower() in phrase or custom_action_keyword['Dict']['Maximum'] in phrase:
+            if ('brightness').lower() in phrase:
+                if 'hundred'.lower() in phrase or 'maximum' in phrase:
                     bright=100
-                elif 'zero'.lower() in phrase or custom_action_keyword['Dict']['Minimum'] in phrase:
+                elif 'zero'.lower() in phrase or 'minimum' in phrase:
                     bright=0
                 else:
                     bright=re.findall('\d+', phrase)
@@ -217,16 +199,16 @@ class HomeAutomationHub():
                 if domoticz_devices['result'][j]['idx']==index:
                     devorder=j
                     break
-            if (' ' + custom_action_keyword['Dict']['On'] + ' ') in query or (' ' + custom_action_keyword['Dict']['On']) in query or (custom_action_keyword['Dict']['On'] + ' ') in query:
+            if (' ' + 'on' + ' ') in query or (' ' + 'on') in query or ('on' + ' ') in query:
                 devreq=requests.head("https://" + configuration['Domoticz']['Server_IP'][0] + ":" + configuration['Domoticz']['Server_port'][0] + "/json.htm?type=command&param=switchlight&idx=" + index + "&switchcmd=On",verify=False)
                 print('Turning on ' + devicename )
-            if custom_action_keyword['Dict']['Off'] in query:
+            if 'off' in query:
                 devreq=requests.head("https://" + configuration['Domoticz']['Server_IP'][0] + ":" + configuration['Domoticz']['Server_port'][0] + "/json.htm?type=command&param=switchlight&idx=" + index + "&switchcmd=Off",verify=False)
                 print('Turning off ' + devicename )
             if 'toggle' in query:
                 devreq=requests.head("https://" + configuration['Domoticz']['Server_IP'][0] + ":" + configuration['Domoticz']['Server_port'][0] + "/json.htm?type=command&param=switchlight&idx=" + index + "&switchcmd=Toggle",verify=False)
                 print('Toggling ' + devicename )
-            if custom_action_keyword['Dict']['Colour'] in query:
+            if 'colour' in query:
                 if 'RGB' in domoticz_devices['result'][devorder]['SubType']:
                     rcolour,gcolour,bcolour,hexcolour,colour=getcolours(query)
                     hexcolour=hexcolour.replace("#","",1)
@@ -238,11 +220,11 @@ class HomeAutomationHub():
                     print('Setting ' + devicename + ' to ' + colour )
                 else:
                     print('The requested light is not a colour bulb')
-            if custom_action_keyword['Dict']['Brightness'] in query:
+            if 'brightness' in query:
                 if domoticz_devices['result'][devorder]['HaveDimmer']:
-                    if 'hundred' in query or 'hundred'.lower() in query or custom_action_keyword['Dict']['Maximum'] in query:
+                    if 'hundred' in query or 'hundred'.lower() in query or 'maximum' in query:
                         bright=str(100)
-                    elif 'zero' in query or custom_action_keyword['Dict']['Minimum'] in query:
+                    elif 'zero' in query or 'minimum' in query:
                         bright=str(0)
                     else:
                         bright=re.findall('\d+', query)
@@ -277,10 +259,10 @@ class HomeAutomationHub():
             if wemodevices!=[]:
                 for i in range(0,len(wemodevices)):
                     if wemodevices[i] in command:
-                        if (' ' + custom_action_keyword['Dict']['On'] + ' ') in command or (' ' + custom_action_keyword['Dict']['On']) in query or (custom_action_keyword['Dict']['On'] + ' ') in command:
+                        if (' ' + 'on' + ' ') in command or (' ' + 'on') in query or ('on' + ' ') in command:
                             wemodevices[i].on()
                             print("Turning on "+wemodevices[i])
-                        elif custom_action_keyword['Dict']['Off'] in command:
+                        elif 'off' in command:
                             wemodevices[i].on()
                             print("Turning off "+wemodevices[i])
                         break
@@ -333,9 +315,13 @@ class HomeAutomationHub():
             print("Adafruit_io MQTT client not enabled")
 
     def custom_command(self,command):
-        if configuration['Wemo_Control']=='Enabled':
-            if 'emulated' in command:
-                self.wemocontrol(command)
+        if configuration['Wemo']['Wemo_Control']=='Enabled':
+            for i in range(0,len(configuration['Wemo']['Wemo_Devices']['Device_Names'])):
+                if configuration['Wemo']['Wemo_Devices']['Device_Names'][i].lower() in usrcmd.lower():
+                    self.wemocontrol(usrcmd)
+                break
+        if 'discover emulated' in usrcmd.lower():
+            wemodiscovery()
 
         if configuration['DIYHUE']['DIYHUE_Control']=='Enabled':
             if os.path.isfile('/opt/hue-emulator/config.json'):
@@ -365,7 +351,7 @@ class HomeAutomationHub():
                 print("Number of devices and the number of ids given in config file do not match")
 
         if configuration['ESP']['ESP_Control']=='Enabled':
-            if (custom_action_keyword['Keywords']['ESP_control'][0]).lower() in str(command).lower():
+            if 'wireless' in str(command).lower():
                 ESP(str(command).lower())
 
 if __name__ == '__main__':
