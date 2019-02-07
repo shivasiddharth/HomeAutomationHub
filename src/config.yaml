@@ -79,3 +79,14 @@ Tasmota_devicelist:
   portID:
     - '1'
     - '1'
+
+#Wemo/Emulated Wemo devices
+Wemo:
+  Wemo_Control: 'Disabled'
+  Wemo_Devices:
+    IP_Address:
+      - 'Enter wemo device 1 ip here'
+      - 'Enter wemo device 2 ip here'
+    Device_Names:
+      - 'Enter wemo device 1 name here'
+      - 'Enter wemo device 1 name here'

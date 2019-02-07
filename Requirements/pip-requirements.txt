@@ -6,3 +6,4 @@ gpiozero>=1.4.1
 numpy>=1.15.4
 paho-mqtt==1.4.0
 adafruit-io==2.1
+pywemo==0.4.39
