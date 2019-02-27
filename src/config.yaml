@@ -35,7 +35,7 @@ Domoticz:
 
 #ESP control declarations. Follow a similar pattern to add your own list.
 ESP:
-  ESP_Control: 'Enabled'
+  ESP_Control: 'Disabled'
   IP: 'xxxxxxxxxxxx' #Enter your ESP's IP here.
   devicename:
     - 'Device 1'
@@ -46,18 +46,6 @@ ESP:
     - '/Device2'
     - '/Device3'
 
-#Set the language of your command. Default is english
-Language:
-  Choice: 'en-US'
-  Language options:
-     - 'en-US' #'English'US
-     - 'en-GB' #English GB
-     - 'fr-FR' # 'French'
-     - 'de-DE' # 'German'
-     - 'it-IT' # 'Italian'
-     - 'es-ES' # 'Spanish'
-     - 'nl-NL' # 'Dutch'
-     - 'sv-SE' # 'Swedish'
 
 #MQTT credentials
 MQTT:
@@ -69,7 +57,7 @@ MQTT:
 
 #Enter your Tasmota Device details below
 Tasmota_devicelist:
-  Tasmota_Control: 'Enabled'
+  Tasmota_Control: 'Disabled'
   friendly-names:
     - 'Desk Light'
     - 'Table Light'
@@ -79,14 +67,3 @@ Tasmota_devicelist:
   portID:
     - '1'
     - '1'
-
-#Wemo/Emulated Wemo devices
-Wemo:
-  Wemo_Control: 'Disabled'
-  Wemo_Devices:
-    IP_Address:
-      - 'Enter wemo device 1 ip here'
-      - 'Enter wemo device 2 ip here'
-    Device_Names:
-      - 'Enter wemo device 1 name here'
-      - 'Enter wemo device 1 name here'
