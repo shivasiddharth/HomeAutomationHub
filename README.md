@@ -1,5 +1,5 @@
 # HomeAutomationHub
-Using Adafruit IO or Local MQTT control devices like Sonoff-Tasmota, Domoticz, Emulated Wemo etc.     
+Using Adafruit IO or Local MQTT control Sonoff-Tasmota and Domoticz devices     
 
 ## Steps to get started:    
 1. Clone the Git    
@@ -35,7 +35,6 @@ sudo systemctl start homeautomationhub.service
 ## Devices that currently work:   
  - Sonoff-Tasmota   
  - Domoticz Devices    
- - Emulated Wemo   
 
 ## Devices to be added/fixed:   
  - diyHue   

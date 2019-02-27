@@ -20,7 +20,7 @@ import urllib.request
 import paho.mqtt.client as mqtt
 from pathlib import Path
 from Adafruit_IO import MQTTClient
-import pywemo
+
 
 ROOT_PATH = os.path.realpath(os.path.join(__file__, '..', '..'))
 USER_PATH = os.path.realpath(os.path.join(__file__, '..', '..','..'))
@@ -240,36 +240,6 @@ class HomeAutomationHub():
             else:
                 print("Device or Domoticz server is not online")
 
-    def wemodiscovery(self):
-        devices = pywemo.discover_devices()
-        if devices!=[]:
-            with open('{}/wemodevicelist.json'.format(USER_PATH), 'w') as devicelist:
-                   json.dump(devices, devicelist)
-            if len(devices)>1:
-                print("Found "+str(len(devices))+" devices.")
-            else:
-                print("Found "+str(len(devices))+" device.")
-        else:
-            print("Unable to find any active device.")
-
-    def wemocontrol(self,command):
-        if os.path.isfile("{}/wemodevicelist.json".format(USER_PATH)):
-            with open('{}/wemodevicelist.json'.format(USER_PATH), 'r') as devicelist:
-                wemodevices = json.load(devicelist)
-            if wemodevices!=[]:
-                for i in range(0,len(wemodevices)):
-                    if wemodevices[i] in command:
-                        if (' ' + 'on' + ' ') in command or (' ' + 'on') in query or ('on' + ' ') in command:
-                            wemodevices[i].on()
-                            print("Turning on "+wemodevices[i])
-                        elif 'off' in command:
-                            wemodevices[i].on()
-                            print("Turning off "+wemodevices[i])
-                        break
-            else:
-                print("Device list is empty. Try running the device discovery.")
-        else:
-            print("Unable to find device registry. Try running the device discovery.")
 
     def on_connect(self, client, userdata, flags, rc):
         print("Connected with result code "+str(rc))
@@ -314,14 +284,7 @@ class HomeAutomationHub():
         else:
             print("Adafruit_io MQTT client not enabled")
 
-    def custom_command(self,command):
-        if configuration['Wemo']['Wemo_Control']=='Enabled':
-            for i in range(0,len(configuration['Wemo']['Wemo_Devices']['Device_Names'])):
-                if configuration['Wemo']['Wemo_Devices']['Device_Names'][i].lower() in usrcmd.lower():
-                    self.wemocontrol(usrcmd)
-                break
-        if 'discover emulated' in usrcmd.lower():
-            wemodiscovery()
+    def custom_command(self,command):        
 
         if configuration['DIYHUE']['DIYHUE_Control']=='Enabled':
             if os.path.isfile('/opt/hue-emulator/config.json'):
